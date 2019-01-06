@@ -1,0 +1,92 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <rect x="-9999" y="-9999" width="99999" height="99999" />
+  <g id="main">
+    <g id="orig" class="zero" transform-origin="50 50">
+      <path id="hex" fill="#fff" stroke-width="1" stroke="#000" d="M50 0 l50 21.1624 L100 78.8675 L50 100 L0 78.8675 L0 21.1324z" />
+      <circle class="a"/>
+      <circle class="b"/>
+      <circle class="c"/>
+      <circle class="d"/>
+      <circle class="e"/>
+      <circle class="f"/>
+    </g>
+  </g>
+
+  <style>
+
+    #orig {
+      display: none;
+    }
+
+    circle {
+      cx: 50;
+      cy: 50;
+      opacity: 0;
+      r: 7;
+      transition: all 0.5s linear;
+    }
+
+    g.one > circle.a {
+      opacity: 1;
+    }
+
+    g.two   > circle,
+    g.three > circle,
+    g.four  > circle,
+    g.five  > circle,
+    g.six   > circle {
+      cx: 33.33;
+      cy: 33.33;
+      opacity: 1;
+    }
+
+    g.two   > circle.a,
+    g.three > circle.a,
+    g.four  > circle.a,
+    g.five  > circle.a,
+    g.six   > circle.a {
+      cx: 66.66;
+      cy: 66.66;
+      opacity: 1;
+    }
+
+    g.five  > circle.e,
+    g.three > circle.b,
+    g.five  > circle.b {
+      cx: 50;
+      cy: 50;
+      opacity: 1;
+    }
+
+    g.four > circle.b,
+    g.five > circle.b,
+    g.six> circle.b {
+      cx: 33.33;
+      cy: 66.66;
+      opacity: 1;
+    }
+
+    g.four > circle.c,
+    g.five > circle.c,
+    g.six  > circle.c {
+      cx: 66.66;
+      cy: 33.33;
+      opacity: 1;
+    }
+
+    g.six > circle.e {
+      cx: 33.33;
+      cy: 50;
+      opacity: 1;
+    }
+
+    g.six > circle.f {
+      cx: 66.66;
+      cy: 50;
+      opacity: 1;
+    }
+
+  </style>
+
+  <script type="text/javascript" href="./hex.js"></script>
+</svg>
