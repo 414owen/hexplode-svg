@@ -63,6 +63,14 @@
       font-family: sans-serif;
     }
 
+    .p1 {
+      fill: #f66;
+    }
+
+    .p2 {
+      fill: #66f;
+    }
+
   </style>
 
   <g id="main">

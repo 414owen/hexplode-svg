@@ -173,17 +173,17 @@ const translate = point => {
   }, [nw / 2 - width / 2, nh / 2 - height / 2]);
 };
 
-const newCell = (n, point) => ({
-    id: point.get().toString(),
-    player: null,
-    pieces: 0,
-    point,
-    node: append(main, attrs(cloneOrig(), {
-      transform: `translate(${translate(point)})`,
-    })),
-    neighbours: point.surrounding()
-      .filter(isHexPoint)
-      .filter(isPointOnGrid.bind(null, n))
+const newCell = (n, point, onClick) => ({
+  id: point.get().toString(),
+  player: null,
+  pieces: 0,
+  point,
+  node: append(main, cloneOrig({
+    transform: `translate(${translate(point)})`,
+  }, onClick)),
+  neighbours: point.surrounding()
+    .filter(isHexPoint)
+    .filter(isPointOnGrid.bind(null, n))
 });
 
 const pointsIn = (n, callback) => {
@@ -228,13 +228,34 @@ const bfs = (root, fn) => {
   }
 };
 
+let playerInd = 0;
+
 class Grid {
   constructor(n) {
     this.n = n;
     const grid = this.grid = {};
     let points = 0;
+    const onClick = point => {
+      const cell = this.getPoint(point);
+      let frontier = [cell];
+      while (frontier.length > 0) {
+        frontier.forEach(cell => {
+          const newFrontier = [];
+          cell.pieces++;
+          if (cell.pieces >= cell.neighbours.length) {
+            cell.neighbours.forEach(cell => {
+              newFrontier.push(cell);
+            })
+            cell.pieces %= cell.neighbours;
+          }
+          cell.node.className = `hex p${playerInd} ${classes[cell.pieces]}`;
+          frontier = newFrontier;
+        });
+      }
+      playerInd = (playerInd + 1) % 2;
+    };
     pointsIn(n, point => {
-      updateIn(grid, point.get(), constant(newCell(n, point)));
+      updateIn(grid, point.get(), constant(newCell(n, point, onClick.bind(null, point))));
     });
     pointsIn(n, point => {
       const cell = getIn(grid, point.get());
@@ -250,10 +271,6 @@ class Grid {
 
   getPoint(point) {
     return this.get(...point.get());
-  }
-
-  set(x, y, z, n) {
-
   }
 }
 
