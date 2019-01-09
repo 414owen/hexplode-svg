@@ -3,32 +3,57 @@
 
   <style>
 
-    circle {
-      animation-name: bob-out;
-      animation-duration: 0.8s;
-      animation-fill-mode: forwards;
-      animation-timing-function: ease-in-out;
-      r: 0;
-      fill: #000;
-    }
-
-    g.init circle {
-      animation-duration: 0s;
-    }
-
-    #orig { 
+    #orig {
       display: none;
     }
 
-    g.one   circle.one,
-    g.two   circle.two,
-    g.three circle.three,
-    g.four  circle.four,
-    g.five  circle.five,
-    g.six   circle.six,
-    g.seven circle.seven,
-    g.eight circle.eight,
-    g.nine  circle.nine {
+    circle {
+      opacity: 0;
+      animation-duration: 0.8s;
+      animation-fill-mode: forwards;
+      animation-timing-function: ease-in-out;
+      fill: #000;
+    }
+
+    .advanced circle {
+      r: 0;
+      opacity: 1;
+      animation-name: bob-out;
+    }
+
+    .hex {
+      opacity: 0;
+      animation-name: fade-in;
+      animation-duration: 0.8s;
+      animation-fill-mode: forwards;
+      animation-timing-function: ease-in-out;
+    }
+
+    .init circle {
+      animation-duration: 0s;
+    }
+
+    :not(.advanced) > .one   > circle.one,
+    :not(.advanced) > .two   > circle.two,
+    :not(.advanced) > .three > circle.three,
+    :not(.advanced) > .four  > circle.four,
+    :not(.advanced) > .five  > circle.five,
+    :not(.advanced) > .six   > circle.six,
+    :not(.advanced) > .seven > circle.seven,
+    :not(.advanced) > .eight > circle.eight,
+    :not(.advanced) > .nine  > circle.nine {
+      opacity: 1;
+    }
+
+    .advanced > .one   > circle.one,
+    .advanced > .two   > circle.two,
+    .advanced > .three > circle.three,
+    .advanced > .four  > circle.four,
+    .advanced > .five  > circle.five,
+    .advanced > .six   > circle.six,
+    .advanced > .seven > circle.seven,
+    .advanced > .eight > circle.eight,
+    .advanced > .nine  > circle.nine {
       animation-name: bob-in;
     }
 
@@ -51,40 +76,48 @@
       100% { r: 8; }
     }
 
+    @keyframes fade-in {
+      0%   { opacity: 0; }
+      100% { opacity: 1; }
+    }
+
     .button {
       cursor: pointer;
     }
 
-    g.hex:hover circle {
-      fill: #f66;
+    .hex:hover path {
+      transform: rotate(pi);
     }
 
     text {
       font-family: sans-serif;
     }
 
-    .p1 {
-      fill: #f66;
+    .p0 circle,
+    #main.game-over.p0 .hex.p0 path {
+      fill: #66f;
     }
 
-    .p2 {
-      fill: #66f;
+    .p1 circle,
+    #main.game-over.p1 .hex.p1 path,
+    .menu .hex:hover circle {
+      fill: #f66;
     }
 
   </style>
 
-  <g id="main">
-    <g id="orig" class="hex init" transform-origin="50 50">
-      <path id="hex" fill="#fff" stroke-width="1" stroke="#000" d="M0 50l25 43.3l50 0L100 50L75 6.7l-50 0z"/>
-      <circle class="one three five seven nine" cx="50" cy="50"/>
-      <circle class="two three four five six seven eight nine" cx="33.33" cy="33.33"/>
-      <circle class="two three four five six seven eight nine" cx="66.66" cy="66.66"/>
-      <circle class="four five six seven eight nine" cx="33.33" cy="66.66"/>
-      <circle class="four five six seven eight nine" cx="66.66" cy="33.33"/>
-      <circle class="six seven eight nine" cx="33.33" cy="50"/>
-      <circle class="six seven eight nine" cx="66.66" cy="50"/>
-      <circle class="eight nine" cx="50" cy="33.33"/>
-      <circle class="eight nine" cx="50" cy="66.66"/>
+  <g id="main" class="advanced">
+    <g id="orig" class="hex zero init" transform-origin="50 50">
+      <path fill="#fff" stroke-width="3" stroke="#000" d="M0 50l25 43.3l50 0L100 50L75 6.7l-50 0z"/>
+      <circle r="7" class="one three five seven nine" cx="50" cy="50"/>
+      <circle r="7" class="two three four five six seven eight nine" cx="33.33" cy="33.33"/>
+      <circle r="7" class="two three four five six seven eight nine" cx="66.66" cy="66.66"/>
+      <circle r="7" class="four five six seven eight nine" cx="33.33" cy="66.66"/>
+      <circle r="7" class="four five six seven eight nine" cx="66.66" cy="33.33"/>
+      <circle r="7" class="six seven eight nine" cx="33.33" cy="50"/>
+      <circle r="7" class="six seven eight nine" cx="66.66" cy="50"/>
+      <circle r="7" class="eight nine" cx="50" cy="33.33"/>
+      <circle r="7" class="eight nine" cx="50" cy="66.66"/>
     </g>
   </g>
 

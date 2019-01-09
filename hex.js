@@ -18,6 +18,10 @@ const edge = (width / 2) * Math.cos(rads(30));
 const vedge = (width / 2) * Math.sin(rads(30));
 const signum = a => a > 0 ? 1 : a < 0 ? -1 : 0;
 
+if (location.hash === '#reduced') {
+  main.classList.remove('advanced');
+}
+
 const withClick = (el, callback) => {
   el.onclick = callback;
   return el;
@@ -30,7 +34,7 @@ const attrs = (node, attrs) => {
   return node;
 };
 
-attrs(q('#hex'), {
+attrs(q('.hex path'), {
   d: `M0 ${height / 2}l${width / 4} ${edge}l${width / 2} 0L${width} ${height / 2}l-${width / 4} -${edge}l-${width / 2} 0z`,
 });
 
@@ -51,15 +55,24 @@ const crText = (x, y, text) => append(
   document.createTextNode(text)
 );
 
+let text;
+
 const addText = text => {
   const [width, height] = dims();
-  return append(main, attrs(
+  const node = attrs(
     crText(width / 2, height, text), {
       fill: '#fff',
       'text-anchor': 'middle',
       'dominant-baseline': 'text-after-edge',
     }
-  ));
+  );
+  append(main, node);
+  return node;
+};
+
+const replaceText = string => {
+  if (text) {text.remove();}
+  return addText(string);
 };
 
 const emptyMain = () => {
@@ -68,6 +81,7 @@ const emptyMain = () => {
 
 const numMenu = (values, text, callback) => {
   emptyMain();
+  main.classList.add('menu');
   const n = values.length;
   const newWidth = width * n;
   const newHeight = height * n;
@@ -76,9 +90,13 @@ const numMenu = (values, text, callback) => {
     append(main, cloneOrig({
       transform: `translate(${100 * ind} ${newHeight / 2 - 50})`,
       'class': `hex button ${classes[value]}`,
-    }, callback.bind(null, value)))
+      style: `animation-delay: ${ind / 10}s`
+    }, () => {
+      callback(value)
+      main.classList.remove('menu');
+    }));
   });
-  addText(text);
+  replaceText(text);
 };
 
 const isOnGrid = (n, ptarr) => Math.max(...ptarr.map(Math.abs)) <= n;
@@ -173,18 +191,25 @@ const translate = point => {
   }, [nw / 2 - width / 2, nh / 2 - height / 2]);
 };
 
-const newCell = (n, point, onClick) => ({
-  id: point.get().toString(),
-  player: null,
-  pieces: 0,
-  point,
-  node: append(main, cloneOrig({
+const newCell = (n, point, onClick) => {
+  const [x, y, z] = point.get();
+  const node = cloneOrig({
     transform: `translate(${translate(point)})`,
-  }, onClick)),
-  neighbours: point.surrounding()
-    .filter(isHexPoint)
-    .filter(isPointOnGrid.bind(null, n))
-});
+    style: `animation-delay: ${(Math.random() + n + Math.min(x, y, z)) / 10}s`,
+    'data-point': JSON.stringify(point.get()),
+  }, onClick);
+  append(main, node);
+  return {
+    id: point.get().toString(),
+    player: null,
+    pieces: 0,
+    point,
+    node: node,
+    neighbours: point.surrounding()
+      .filter(isHexPoint)
+      .filter(isPointOnGrid.bind(null, n))
+  };
+}
 
 const pointsIn = (n, callback) => {
   for (let i = 0; i <= n * 2; i++) {
@@ -212,50 +237,22 @@ const updateIn = (root, path, updater) => {
 
 const getIn = (root, path) => path.reduce((acc, seg) => acc[seg], root);
 
-const bfs = (root, fn) => {
-  const traversed = {};
-  let frontier = [root];
-  while (frontier.length > 0) {
-    const newFrontier = [];
-    frontier.forEach(node => {
-      traversed[node.id] = true;
-      fn(node);
-      node.neighbours.forEach(neighbour => {
-        newFrontier.push(neighbour);
-      });
-    });
-    frontier = newFrontier.filter(n => !(n.id in traversed));;
-  }
-};
-
+let turn = 0;
 let playerInd = 0;
+let ownedCells = [0, 0];
+let winner = false;
+let clickLock = false;
 
 class Grid {
   constructor(n) {
     this.n = n;
     const grid = this.grid = {};
-    let points = 0;
-    const onClick = point => {
-      const cell = this.getPoint(point);
-      let frontier = [cell];
-      while (frontier.length > 0) {
-        frontier.forEach(cell => {
-          const newFrontier = [];
-          cell.pieces++;
-          if (cell.pieces >= cell.neighbours.length) {
-            cell.neighbours.forEach(cell => {
-              newFrontier.push(cell);
-            })
-            cell.pieces %= cell.neighbours;
-          }
-          cell.node.className = `hex p${playerInd} ${classes[cell.pieces]}`;
-          frontier = newFrontier;
-        });
-      }
-      playerInd = (playerInd + 1) % 2;
-    };
+    this.points = 0;
     pointsIn(n, point => {
-      updateIn(grid, point.get(), constant(newCell(n, point, onClick.bind(null, point))));
+      this.points++;
+      updateIn(grid, point.get(), constant(newCell(n, point, data => {
+        this.handleCellClick(data)
+      })));
     });
     pointsIn(n, point => {
       const cell = getIn(grid, point.get());
@@ -271,6 +268,58 @@ class Grid {
 
   getPoint(point) {
     return this.get(...point.get());
+  }
+
+  addToCell(cell) {
+    let frontier = [cell];
+    while (frontier.length > 0) {
+      const newFrontier = [];
+      frontier.forEach(cell => {
+        cell.pieces++;
+        if (cell.node.classList.contains('zero') || !cell.node.classList.contains(`p${playerInd}`)) {
+          ownedCells[playerInd]++;
+        }
+        if (cell.node.classList.contains(`p${(playerInd + 1) % 2}`)) {
+          ownedCells[(playerInd + 1) % 2]--;
+        }
+        if (cell.pieces >= cell.neighbours.length) {
+          ownedCells[playerInd]--;
+          cell.neighbours.forEach(cell => {
+            newFrontier.push(cell);
+          })
+          cell.pieces = 0;
+        }
+        attrs(cell.node, {
+          'class': `hex ${cell.pieces > 0 ? `p${playerInd}` : ''} ${classes[cell.pieces]}`
+        });
+      });
+      frontier = newFrontier;
+      console.log(ownedCells);
+      if (turn > 1 && ownedCells[(playerInd + 1) % 2] === 0) {
+        winner = playerInd;
+        replaceText(`Player ${playerInd + 1} Wins`);
+        main.classList.add('game-over');
+        main.classList.add(`p${playerInd}`);
+        return;
+      }
+    }
+    clickLock = false;
+  }
+
+  handleCellClick(data) {
+    const pointStr = data.target.dataset.point;
+    if (pointStr) {
+      const cell = this.get(...JSON.parse(pointStr));
+      if (cell.node.classList.contains('zero') || !cell.node.classList.contains(`p${(playerInd + 1) % 2}`)) {
+        if (clickLock) return;
+        clickLock = true;
+        this.addToCell(cell);
+        turn++;
+        playerInd = (playerInd + 1) % 2;
+      }
+    } else {
+      this.handleCellClick({ target: data.target.parentNode });
+    }
   }
 }
 
