@@ -47,13 +47,13 @@ const cloneOrig = (att = {}, onClick = pass) => {
 const crel = el => document.createElementNS('http://www.w3.org/2000/svg', el);
 const append = (par, child) => {
   par.appendChild(child);
-  return par;
+  return [par, child];
 };
 
 const crText = (x, y, text) => append(
   attrs(crel('text'), { x, y }),
   document.createTextNode(text)
-);
+)[0];
 
 let text;
 
@@ -66,8 +66,7 @@ const addText = text => {
       'dominant-baseline': 'text-after-edge',
     }
   );
-  append(main, node);
-  return node;
+  return append(main, node)[1];
 };
 
 const replaceText = string => {
@@ -90,7 +89,7 @@ const numMenu = (values, text, callback) => {
     append(main, cloneOrig({
       transform: `translate(${100 * ind} ${newHeight / 2 - 50})`,
       'class': `hex button ${classes[value]}`,
-      style: `animation-delay: ${ind / 10}s`
+      style: `animation-delay: -100s`
     }, () => {
       callback(value)
       main.classList.remove('menu');
@@ -198,13 +197,12 @@ const newCell = (n, point, onClick) => {
     style: `animation-delay: ${(Math.random() + n + Math.min(x, y, z)) / 10}s`,
     'data-point': JSON.stringify(point.get()),
   }, onClick);
-  append(main, node);
   return {
     id: point.get().toString(),
     player: null,
     pieces: 0,
     point,
-    node: node,
+    node: append(main, node)[1],
     neighbours: point.surrounding()
       .filter(isHexPoint)
       .filter(isPointOnGrid.bind(null, n))
@@ -237,14 +235,15 @@ const updateIn = (root, path, updater) => {
 
 const getIn = (root, path) => path.reduce((acc, seg) => acc[seg], root);
 
-let turn = 0;
-let playerInd = 0;
-let ownedCells = [0, 0];
-let winner = false;
-let clickLock = false;
-
-class Grid {
+class Game {
   constructor(n) {
+
+    this.turn = 0;
+    this.playerInd = 0;
+    this.ownedCells = [0, 0];
+    this.winner = false;
+    this.clickLock = false;
+
     this.n = n;
     const grid = this.grid = {};
     this.points = 0;
@@ -270,52 +269,56 @@ class Grid {
     return this.get(...point.get());
   }
 
+  getNextPlayer() {
+    return (this.playerInd + 1) % 2;
+  }
+
   addToCell(cell) {
     let frontier = [cell];
     while (frontier.length > 0) {
       const newFrontier = [];
       frontier.forEach(cell => {
         cell.pieces++;
-        if (cell.node.classList.contains('zero') || !cell.node.classList.contains(`p${playerInd}`)) {
-          ownedCells[playerInd]++;
+        if (cell.node.classList.contains('zero') || !cell.node.classList.contains(`p${this.playerInd}`)) {
+          this.ownedCells[this.playerInd]++;
         }
-        if (cell.node.classList.contains(`p${(playerInd + 1) % 2}`)) {
-          ownedCells[(playerInd + 1) % 2]--;
+        if (cell.node.classList.contains(`p${this.getNextPlayer()}`)) {
+          this.ownedCells[this.getNextPlayer()]--;
         }
         if (cell.pieces >= cell.neighbours.length) {
-          ownedCells[playerInd]--;
+          this.ownedCells[this.playerInd]--;
           cell.neighbours.forEach(cell => {
             newFrontier.push(cell);
           })
           cell.pieces = 0;
         }
         attrs(cell.node, {
-          'class': `hex ${cell.pieces > 0 ? `p${playerInd}` : ''} ${classes[cell.pieces]}`
+          'class': `hex ${cell.pieces > 0 ? `p${this.playerInd}` : ''} ${classes[cell.pieces]}`
         });
       });
       frontier = newFrontier;
-      console.log(ownedCells);
-      if (turn > 1 && ownedCells[(playerInd + 1) % 2] === 0) {
-        winner = playerInd;
-        replaceText(`Player ${playerInd + 1} Wins`);
+      console.log(this.turn, this.ownedCells);
+      if (this.turn > 1 && this.ownedCells[this.getNextPlayer()] === 0) {
+        this.winner = this.playerInd;
+        replaceText(`Player ${this.playerInd + 1} Wins`);
         main.classList.add('game-over');
-        main.classList.add(`p${playerInd}`);
+        main.classList.add(`p${this.playerInd}`);
         return;
       }
     }
-    clickLock = false;
+    this.clickLock = false;
   }
 
   handleCellClick(data) {
     const pointStr = data.target.dataset.point;
     if (pointStr) {
       const cell = this.get(...JSON.parse(pointStr));
-      if (cell.node.classList.contains('zero') || !cell.node.classList.contains(`p${(playerInd + 1) % 2}`)) {
-        if (clickLock) return;
-        clickLock = true;
+      if (cell.node.classList.contains('zero') || !cell.node.classList.contains(`p${this.getNextPlayer()}`)) {
+        if (this.clickLock) return;
+        this.clickLock = true;
         this.addToCell(cell);
-        turn++;
-        playerInd = (playerInd + 1) % 2;
+        this.turn++;
+        this.playerInd = this.getNextPlayer();
       }
     } else {
       this.handleCellClick({ target: data.target.parentNode });
@@ -328,7 +331,7 @@ const runGame = size => {
   attrs(svg, {
     viewBox: `0 0 ${(size * 2 + 1) * width} ${(size * 2 + 1) * height}`,
   });
-  const grid = new Grid(size);
+  const grid = new Game(size);
 };
 
 const startGame = () => {

@@ -85,23 +85,29 @@
       cursor: pointer;
     }
 
-    .hex:hover path {
+    .hex:hover > path {
       transform: rotate(pi);
     }
 
     text {
       font-family: sans-serif;
+      font-size: 24px;
+      transition: font-size 2s linear;
     }
 
-    .p0 circle,
-    #main.game-over.p0 .hex.p0 path {
+    .p0 > circle {
       fill: #66f;
     }
 
-    .p1 circle,
-    #main.game-over.p1 .hex.p1 path,
-    .menu .hex:hover circle {
+    .p1 > circle,
+    .menu > .hex:hover > circle {
       fill: #f66;
+    }
+
+    @keyframes bob {
+      0%   { font-size: 20; }
+      50%  { font-size: 30; }
+      100%  { font-size: 20; }
     }
 
   </style>
