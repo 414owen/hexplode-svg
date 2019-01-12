@@ -14,8 +14,7 @@ const view = () => svg.getAttributeNS(null, 'viewBox').split(' ')
 const dims = () => view().slice(2);
 const [width, height] = dims();
 const rads = n => Math.PI * n / 180;
-const edge = (width / 2) * Math.cos(rads(30));
-const vedge = (width / 2) * Math.sin(rads(30));
+const vedge = (width / 2) * Math.cos(rads(30));
 const signum = a => a > 0 ? 1 : a < 0 ? -1 : 0;
 
 if (location.hash === '#reduced') {
@@ -35,7 +34,7 @@ const attrs = (node, attrs) => {
 };
 
 attrs(q('.hex path'), {
-  d: `M0 ${height / 2}l${width / 4} ${edge}l${width / 2} 0L${width} ${height / 2}l-${width / 4} -${edge}l-${width / 2} 0z`,
+  d: `M0 ${height / 2}l${width / 4} ${vedge}l${width / 2} 0L${width} ${height / 2}l-${width / 4} -${vedge}l-${width / 2} 0z`,
 });
 
 const cloneOrig = (att = {}, onClick = pass) => {
@@ -63,7 +62,7 @@ const addText = text => {
     crText(width / 2, height, text), {
       fill: '#fff',
       'text-anchor': 'middle',
-      'dominant-baseline': 'text-after-edge',
+      'dominant-baseline': 'text-after-vedge',
     }
   );
   return append(main, node)[1];
@@ -164,30 +163,17 @@ class Point {
   }
 }
 
-const offsets = {
-  '-1': {
-    0: [-3 * width / 4, -edge],
-    1: [-3 * width / 4, edge],
-  },
-  0: {
-    '-1': [0, -2 * edge],
-    1: [0, 2 * edge],
-  },
-  1: {
-    0: [3 * width / 4, edge],
-    '-1': [3 * width / 4, -edge],
-  },
-};
-
-console.log(offsets);
+const dx = [width / 2, 0];
+const dy = [-width / 4, vedge];
+const dz = [-width / 4, -vedge];
+const diffs = [dx, dy, dz];
+const zip = (a, b) => a.map((ea, i) => [ea, b[i]]);
 
 const translate = point => {
   const [nw, nh] = dims();
-  const path = point.pathFrom(new Point(0, 0, 0));
-  return path.map(a => a.get()).reduce(([x, y], [x1, y1]) => {
-    const [dx, dy] = offsets[x1][y1];
-    return [x + dx, y + dy];
-  }, [nw / 2 - width / 2, nh / 2 - height / 2]);
+  const [ox, oy] = [nw / 2 - width / 2, nh / 2 - height / 2];
+  return zip(point.get(), diffs).reduce(([x, y], [n, [dx, dy]]) =>
+    [x + dx * n, y + dy * n], [ox, oy]);
 };
 
 const newCell = (n, point, onClick) => {
@@ -335,7 +321,7 @@ const runGame = size => {
 };
 
 const startGame = () => {
-  numMenu([2, 3, 4, 5, 6, 7, 8, 9], 'Board size', runGame)
+  numMenu([2, 3, 4, 5, 6, 7, 8, 50], 'Board size', runGame)
 };
 
 startGame();
