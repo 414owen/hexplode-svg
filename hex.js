@@ -1,15 +1,16 @@
 console.log('hexplode');
 
 const q = query => document.querySelector(query);
-const svg  = q('svg');
-const main = q('#main');
-const orig = q('#orig');
+const qa = query => Array.from(document.querySelectorAll(query));
+const svg   = q('svg');
+const main  = q('#main');
+const orig  = q('#orig');
+const board = q('#board');
 const classes = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'];
-
 const pass = () => {};
 const constant = a => b => a;
-
-const view = () => svg.getAttributeNS(null, 'viewBox').split(' ')
+const getAttrs = (node, attrs) => attrs.map(a => node.getAttributeNS(null, a));
+const view = () => getAttrs(svg, ['viewBox'])[0].split(' ')
   .map(a => parseInt(a, 10));
 const dims = () => view().slice(2);
 const [width, height] = dims();
@@ -17,21 +18,21 @@ const rads = n => Math.PI * n / 180;
 const vedge = (width / 2) * Math.cos(rads(30));
 const signum = a => a > 0 ? 1 : a < 0 ? -1 : 0;
 
-if (location.hash === '#reduced') {
-  main.classList.remove('advanced');
-}
-
 const withClick = (el, callback) => {
   el.onclick = callback;
   return el;
 };
 
-const attrs = (node, attrs) => {
-  Object.entries(attrs).forEach(([key, val]) => {
-    node.setAttributeNS(null, key, val);
-  });
+const emptyEl = node => {
+  Array.from(node.childNodes).forEach(el => { el.remove(); });
   return node;
 };
+
+const attrs = (node, attrs) =>
+  Object.entries(attrs).reduce((node, [key, val]) => {
+    node.setAttributeNS(null, key, val);
+    return node;
+  }, node);
 
 attrs(q('.hex path'), {
   d: `M0 ${height / 2}l${width / 4} ${vedge}l${width / 2} 0L${width} ${height / 2}l-${width / 4} -${vedge}l-${width / 2} 0z`,
@@ -49,52 +50,42 @@ const append = (par, child) => {
   return [par, child];
 };
 
-const crText = (x, y, text) => append(
-  attrs(crel('text'), { x, y }),
-  document.createTextNode(text)
+const crText = str => document.createTextNode(str);
+
+const text = (x, y, str, {bl = 'text-after-edge'} = {}) => append(
+  attrs(
+    crel('text'), {
+    'text-anchor': 'middle',
+    x,
+    y,
+    'dominant-baseline': bl,
+  }),
+  crText(str)
 )[0];
 
-let text;
+const bottomText = str =>
+  append(main, text(width / 2, height, str, 'middle'))[1];
 
-const addText = text => {
-  const [width, height] = dims();
-  const node = attrs(
-    crText(width / 2, height, text), {
-      fill: '#fff',
-      'text-anchor': 'middle',
-      'dominant-baseline': 'text-after-vedge',
-    }
-  );
-  return append(main, node)[1];
-};
-
-const replaceText = string => {
-  if (text) {text.remove();}
-  return addText(string);
-};
-
-const emptyMain = () => {
-  Array.from(main.childNodes).forEach(el => { el.remove(); });
-};
+const middleText = str =>
+  append(main, text(width / 2, height / 2, str))[1];
 
 const numMenu = (values, text, callback) => {
-  emptyMain();
-  main.classList.add('menu');
+  emptyEl(main).classList.add('menu');
+  append(main, board);
   const n = values.length;
   const newWidth = width * n;
   const newHeight = height * n;
-  attrs(svg, {'viewBox': `0 0 ${newWidth} ${newHeight}`});
   values.forEach((value, ind) => {
-    append(main, cloneOrig({
-      transform: `translate(${100 * ind} ${newHeight / 2 - 50})`,
-      'class': `hex button ${classes[value]}`,
+    append(board, cloneOrig({
+      transform: `scale(${1 / values.length}) translate(${width * ind} ${newHeight / 2 - height / 2})`,
+      'class': `hex ${classes[value]}`,
       style: `animation-delay: -100s`
     }, () => {
       callback(value)
       main.classList.remove('menu');
     }));
   });
-  replaceText(text);
+  bottomText(text);
 };
 
 const isOnGrid = (n, ptarr) => Math.max(...ptarr.map(Math.abs)) <= n;
@@ -188,7 +179,7 @@ const newCell = (n, point, onClick) => {
     player: null,
     pieces: 0,
     point,
-    node: append(main, node)[1],
+    node: append(board, node)[1],
     neighbours: point.surrounding()
       .filter(isHexPoint)
       .filter(isPointOnGrid.bind(null, n))
@@ -224,25 +215,24 @@ const getIn = (root, path) => path.reduce((acc, seg) => acc[seg], root);
 class Game {
   constructor(n) {
 
+    this.n = n;
     this.turn = 0;
     this.playerInd = 0;
     this.ownedCells = [0, 0];
     this.winner = false;
     this.clickLock = false;
 
-    this.n = n;
     const grid = this.grid = {};
     this.points = 0;
-    pointsIn(n, point => {
+    pointsIn(this.n, point => {
       this.points++;
-      updateIn(grid, point.get(), constant(newCell(n, point, data => {
+      updateIn(grid, point.get(), constant(newCell(this.n, point, data => {
         this.handleCellClick(data)
       })));
     });
-    pointsIn(n, point => {
+    pointsIn(this.n, point => {
       const cell = getIn(grid, point.get());
-      cell.neighbours = cell.neighbours.map(point =>
-        getIn(grid, point.get()));
+      cell.neighbours = cell.neighbours.map(point => getIn(grid, point.get()));
     });
     this.origin = getIn(grid, [0, 0, 0]);
   }
@@ -283,10 +273,9 @@ class Game {
         });
       });
       frontier = newFrontier;
-      console.log(this.turn, this.ownedCells);
       if (this.turn > 1 && this.ownedCells[this.getNextPlayer()] === 0) {
         this.winner = this.playerInd;
-        replaceText(`Player ${this.playerInd + 1} Wins`);
+        middleText(`Player ${this.playerInd + 1} Wins`);
         main.classList.add('game-over');
         main.classList.add(`p${this.playerInd}`);
         return;
@@ -313,15 +302,17 @@ class Game {
 }
 
 const runGame = size => {
-  emptyMain();
-  attrs(svg, {
-    viewBox: `0 0 ${(size * 2 + 1) * width} ${(size * 2 + 1) * height}`,
+  size--;
+  append(emptyEl(main), emptyEl(board));
+  attrs(board, {
+    'transform-origin': 'center',
+    transform: `scale(${1 / (1 + 2 * size)})`,
   });
   const grid = new Game(size);
 };
 
 const startGame = () => {
-  numMenu([2, 3, 4, 5, 6, 7, 8, 50], 'Board size', runGame)
+  numMenu([3, 4, 5, 6, 7, 8, 9], 'Select board size', runGame)
 };
 
 startGame();

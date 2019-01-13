@@ -15,7 +15,7 @@
       fill: #000;
     }
 
-    .advanced circle {
+    #main circle {
       r: 0;
       opacity: 1;
       animation-name: bob-out;
@@ -23,6 +23,7 @@
 
     .hex {
       opacity: 0;
+      transition: opacity 1s;
       animation-name: fade-in;
       animation-duration: 0.8s;
       animation-fill-mode: forwards;
@@ -33,27 +34,15 @@
       animation-duration: 0s;
     }
 
-    :not(.advanced) > .one   > circle.one,
-    :not(.advanced) > .two   > circle.two,
-    :not(.advanced) > .three > circle.three,
-    :not(.advanced) > .four  > circle.four,
-    :not(.advanced) > .five  > circle.five,
-    :not(.advanced) > .six   > circle.six,
-    :not(.advanced) > .seven > circle.seven,
-    :not(.advanced) > .eight > circle.eight,
-    :not(.advanced) > .nine  > circle.nine {
-      opacity: 1;
-    }
-
-    .advanced > .one   > circle.one,
-    .advanced > .two   > circle.two,
-    .advanced > .three > circle.three,
-    .advanced > .four  > circle.four,
-    .advanced > .five  > circle.five,
-    .advanced > .six   > circle.six,
-    .advanced > .seven > circle.seven,
-    .advanced > .eight > circle.eight,
-    .advanced > .nine  > circle.nine {
+    #main .one   circle.one,
+    #main .two   circle.two,
+    #main .three circle.three,
+    #main .four  circle.four,
+    #main .five  circle.five,
+    #main .six   circle.six,
+    #main .seven circle.seven,
+    #main .eight circle.eight,
+    #main .nine  circle.nine {
       animation-name: bob-in;
     }
 
@@ -77,53 +66,65 @@
     }
 
     @keyframes fade-in {
-      0%   { opacity: 0; }
-      100% { opacity: 1; }
+      0%   { opacity: 0;   }
+      1%   { opacity: 0.4; }
+      100% { opacity: 1;   }
     }
 
-    .button {
+    .hex {
       cursor: pointer;
-    }
-
-    .hex:hover > path {
-      transform: rotate(pi);
     }
 
     text {
       font-family: sans-serif;
-      font-size: 24px;
-      transition: font-size 2s linear;
+      font-size: 4px;
     }
 
-    .p0 > circle {
+    .p0 circle {
       fill: #66f;
     }
 
-    .p1 > circle,
-    .menu > .hex:hover > circle {
+    .p1 circle,
+    .menu .hex:hover circle {
       fill: #f66;
     }
 
     @keyframes bob {
-      0%   { font-size: 20; }
-      50%  { font-size: 30; }
-      100%  { font-size: 20; }
+      0%   { opacity: 1;   }
+      50%  { opacity: 0.5; }
+      100% { opacity: 1;   }
+    }
+
+    .game-over .hex {
+      animation-name: bob;
+      animation-iteration-count: infinite;
+      animation-duration: 4s;
+    }
+
+    .game-over #board {
+      opacity: 0.5;
+    }
+
+    line, text {
+      fill: #fff;
     }
 
   </style>
 
-  <g id="main" class="advanced">
-    <g id="orig" class="hex zero init" transform-origin="50 50">
-      <path fill="#fff" stroke-width="3" stroke="#000" d="M0 50l25 43.3l50 0L100 50L75 6.7l-50 0z"/>
-      <circle r="7" class="one three five seven nine" cx="50" cy="50"/>
-      <circle r="7" class="two three four five six seven eight nine" cx="33.33" cy="33.33"/>
-      <circle r="7" class="two three four five six seven eight nine" cx="66.66" cy="66.66"/>
-      <circle r="7" class="four five six seven eight nine" cx="33.33" cy="66.66"/>
-      <circle r="7" class="four five six seven eight nine" cx="66.66" cy="33.33"/>
-      <circle r="7" class="six seven eight nine" cx="33.33" cy="50"/>
-      <circle r="7" class="six seven eight nine" cx="66.66" cy="50"/>
-      <circle r="7" class="eight nine" cx="50" cy="33.33"/>
-      <circle r="7" class="eight nine" cx="50" cy="66.66"/>
+  <g id="main">
+    <g id="board">
+      <g id="orig" class="hex zero init" transform-origin="0 0">
+        <path fill="#fff" stroke-width="3" stroke="#000" d="M0 50l25 43.3l50 0L100 50L75 6.7l-50 0z"/>
+        <circle r="7" class="one three five seven nine" cx="50" cy="50"/>
+        <circle r="7" class="two three four five six seven eight nine" cx="33.33" cy="33.33"/>
+        <circle r="7" class="two three four five six seven eight nine" cx="66.66" cy="66.66"/>
+        <circle r="7" class="four five six seven eight nine" cx="33.33" cy="66.66"/>
+        <circle r="7" class="four five six seven eight nine" cx="66.66" cy="33.33"/>
+        <circle r="7" class="six seven eight nine" cx="33.33" cy="50"/>
+        <circle r="7" class="six seven eight nine" cx="66.66" cy="50"/>
+        <circle r="7" class="eight nine" cx="50" cy="33.33"/>
+        <circle r="7" class="eight nine" cx="50" cy="66.66"/>
+      </g>
     </g>
   </g>
 
