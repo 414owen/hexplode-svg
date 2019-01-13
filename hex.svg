@@ -82,6 +82,8 @@
 
     /* red */
     .p0 circle { fill: #E53935; }
+    /* blue */
+    .p1 circle { fill: #1E88E5; }
     /* teal */
     .p2 circle { fill: #00897B; }
     /* amber */
@@ -97,11 +99,7 @@
     /* pink */
     .p8 circle { fill: #E68DD0; }
 
-    /* blue */
-    .p1 circle,
-    .menu .hex:hover circle {
-      fill: #1E88E5;
-    }
+    .menu .hex:hover circle { fill: #f66; }
 
     @keyframes bob {
       0%   { opacity: 1;   }
