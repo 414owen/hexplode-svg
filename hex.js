@@ -212,6 +212,11 @@ const updateIn = (root, path, updater) => {
 };
 
 const getIn = (root, path) => path.reduce((acc, seg) => acc[seg], root);
+const addDelay = (amt, fn) => new Promise((res, rej) => {
+  window.setTimeout(() => {
+    fn().then(res, rej);
+  }, amt);
+});
 
 class Game {
   constructor(players, size) {
@@ -251,42 +256,46 @@ class Game {
     return (this.playerInd + 1) % this.players;
   }
 
-  addToCell(cell) {
-    let frontier = [cell];
-    while (frontier.length > 0) {
-      const newFrontier = [];
-      frontier.forEach(cell => {
-        cell.pieces++;
-        if (cell.player !== this.playerInd && cell.player !== null) {
-          this.ownedCells[cell.player]--;
-        }
-        if (cell.pieces === 0 || cell.player !== this.playerInd) {
-          this.ownedCells[this.playerInd]++;
-        }
-        if (cell.pieces >= cell.neighbours.length) {
-          this.ownedCells[this.playerInd]--;
-          cell.neighbours.forEach(cell => {
-            newFrontier.push(cell);
-          })
-          cell.pieces = 0;
-          cell.player = null;
-        } else {
-          cell.player = this.playerInd;
-        }
-        attrs(cell.node, {
-          'class': `hex ${cell.pieces > 0 ? `p${this.playerInd}` : ''} ${classes[cell.pieces]}`
+  incCell(cell) {
+    cell.pieces++;
+    attrs(cell.node, {
+      'class': `hex ${cell.pieces > 0 ? `p${this.playerInd}` : ''} ${classes[cell.pieces]}`
+    });
+  }
+
+  resolveCell(cell) {
+    return new Promise(res => {
+      const frontier = [];
+      if (cell.player !== this.playerInd && cell.player !== null) {
+        this.ownedCells[cell.player]--;
+      }
+      if (cell.pieces === 0 || cell.player !== this.playerInd) {
+        this.ownedCells[this.playerInd]++;
+      }
+      if (cell.pieces >= cell.neighbours.length) {
+        this.ownedCells[this.playerInd]--;
+        cell.neighbours.forEach(cell => {
+          frontier.push(cell);
         });
-      });
-      frontier = newFrontier;
+        cell.pieces = 0;
+        cell.player = null;
+      } else {
+        cell.player = this.playerInd;
+      }
       const winner = this.getWinner();
       if (winner !== null) {
         middleText(`Player ${winner + 1} Wins`);
         main.classList.add('game-over');
         main.classList.add(`p${winner}`);
         return;
+      } else {
+        return frontier.reduce((acc, cell) => {
+          this.incCell(cell);
+          return acc.then(() =>
+            addDelay(300, () => this.resolveCell(cell)));
+        }, Promise.resolve()).then(res);
       }
-    }
-    this.clickLock = false;
+    });
   }
 
   getWinner() {
@@ -304,9 +313,12 @@ class Game {
       if (cell.player === this.playerInd || cell.player === null) {
         if (this.clickLock) return;
         this.clickLock = true;
-        this.addToCell(cell);
-        this.turn++;
-        this.playerInd = this.getNextPlayer();
+        this.incCell(cell);
+        this.resolveCell(cell).then(() => {
+          this.clickLock = false;
+          this.turn++;
+          this.playerInd = this.getNextPlayer();
+        });
       }
     } else {
       this.handleCellClick({ target: data.target.parentNode });
