@@ -212,11 +212,6 @@ const updateIn = (root, path, updater) => {
 };
 
 const getIn = (root, path) => path.reduce((acc, seg) => acc[seg], root);
-const addDelay = (amt, fn) => new Promise((res, rej) => {
-  window.setTimeout(() => {
-    fn().then(res, rej);
-  }, amt);
-});
 
 class Game {
   constructor(players, size) {
@@ -256,11 +251,15 @@ class Game {
     return (this.playerInd + 1) % this.players;
   }
 
+  styleCell(cell) {
+    return attrs(cell.node, {
+      'class': `hex p${this.playerInd} ${classes[cell.pieces]}`
+    });
+  }
+
   incCell(cell) {
     cell.pieces++;
-    attrs(cell.node, {
-      'class': `hex ${cell.pieces > 0 ? `p${this.playerInd}` : ''} ${classes[cell.pieces]}`
-    });
+    return this.styleCell(cell);
   }
 
   resolveCell(cell) {
@@ -289,11 +288,19 @@ class Game {
         main.classList.add(`p${winner}`);
         return;
       } else {
-        return frontier.reduce((acc, cell) => {
+        this.styleCell(cell);
+        frontier.forEach(cell => {
           this.incCell(cell);
-          return acc.then(() =>
-            addDelay(300, () => this.resolveCell(cell)));
-        }, Promise.resolve()).then(res);
+        });
+        if (frontier.length === 0) {
+          res();
+        } else {
+          window.setTimeout(() => {
+            return frontier.reduce((acc, cell) => {
+              return acc.then(() => this.resolveCell(cell));
+            }, Promise.resolve()).then(res);
+          }, 300);
+        }
       }
     });
   }
