@@ -60,7 +60,7 @@ const text = (x, y, str, {bl = 'text-after-edge'} = {}) => append(
 )[0];
 
 const bottomText = str =>
-  append(main, text(width / 2, height, str))[1];
+  append(main, text(width / 2, height * 0.9, str))[1];
 
 const middleText = str =>
   append(main, text(width / 2, height / 2, str, {bl: 'middle'}))[1];

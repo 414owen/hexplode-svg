@@ -1,7 +1,116 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
   <rect x="-9999" y="-9999" width="99999" height="99999" />
-
   <style>
+    @import url('https://fonts.googleapis.com/css?family=Press+Start+2P');
+
+    /* https://en.wikipedia.org/wiki/List_of_video_game_console_palettes#PAL */
+    
+    :root {
+      --palette-hue1-luminance0: rgb(0, 0, 0);
+      --palette-hue1-luminance2: rgb(40, 40, 40);
+      --palette-hue1-luminance4: rgb(80, 80, 80);
+      --palette-hue1-luminance6: rgb(116, 116, 116);
+      --palette-hue1-luminance8: rgb(148, 148, 148);
+      --palette-hue1-luminance10: rgb(180, 180, 180);
+      --palette-hue1-luminance12: rgb(208, 208, 208);
+      --palette-hue1-luminance14: rgb(236, 236, 236);
+      --palette-hue2-luminance0: rgb(128, 88, 0);
+      --palette-hue2-luminance2: rgb(148, 112, 32);
+      --palette-hue2-luminance4: rgb(168, 132, 60);
+      --palette-hue2-luminance6: rgb(188, 156, 88);
+      --palette-hue2-luminance8: rgb(204, 172, 112);
+      --palette-hue2-luminance10: rgb(220, 192, 132);
+      --palette-hue2-luminance12: rgb(236, 208, 156);
+      --palette-hue2-luminance14: rgb(252, 224, 176);
+      --palette-hue3-luminance0: rgb(68, 92, 0);
+      --palette-hue3-luminance2: rgb(92, 120, 32);
+      --palette-hue3-luminance4: rgb(116, 144, 60);
+      --palette-hue3-luminance6: rgb(140, 172, 88);
+      --palette-hue3-luminance8: rgb(160, 192, 112);
+      --palette-hue3-luminance10: rgb(176, 212, 132);
+      --palette-hue3-luminance12: rgb(196, 232, 156);
+      --palette-hue3-luminance14: rgb(212, 252, 176);
+      --palette-hue4-luminance0: rgb(112, 52, 0);
+      --palette-hue4-luminance2: rgb(136, 80, 32);
+      --palette-hue4-luminance4: rgb(160, 104, 60);
+      --palette-hue4-luminance6: rgb(180, 132, 88);
+      --palette-hue4-luminance8: rgb(200, 152, 112);
+      --palette-hue4-luminance10: rgb(220, 172, 132);
+      --palette-hue4-luminance12: rgb(236, 192, 156);
+      --palette-hue4-luminance14: rgb(252, 212, 176);
+      --palette-hue5-luminance0: rgb(0, 100, 20);
+      --palette-hue5-luminance2: rgb(32, 128, 52);
+      --palette-hue5-luminance4: rgb(60, 152, 80);
+      --palette-hue5-luminance6: rgb(88, 176, 108);
+      --palette-hue5-luminance8: rgb(112, 196, 132);
+      --palette-hue5-luminance10: rgb(132, 216, 156);
+      --palette-hue5-luminance12: rgb(156, 232, 180);
+      --palette-hue5-luminance14: rgb(176, 252, 200);
+      --palette-hue6-luminance0: rgb(112, 0, 20);
+      --palette-hue6-luminance2: rgb(136, 32, 52);
+      --palette-hue6-luminance4: rgb(160, 60, 80);
+      --palette-hue6-luminance6: rgb(180, 88, 108);
+      --palette-hue6-luminance8: rgb(200, 112, 132);
+      --palette-hue6-luminance10: rgb(220, 132, 156);
+      --palette-hue6-luminance12: rgb(236, 156, 180);
+      --palette-hue6-luminance14: rgb(252, 176, 200);
+      --palette-hue7-luminance0: rgb(0, 92, 92);
+      --palette-hue7-luminance2: rgb(32, 116, 116);
+      --palette-hue7-luminance4: rgb(60, 140, 140);
+      --palette-hue7-luminance6: rgb(88, 164, 164);
+      --palette-hue7-luminance8: rgb(112, 184, 184);
+      --palette-hue7-luminance10: rgb(132, 200, 200);
+      --palette-hue7-luminance12: rgb(156, 220, 220);
+      --palette-hue7-luminance14: rgb(176, 236, 236);
+      --palette-hue8-luminance0: rgb(112, 0, 92);
+      --palette-hue8-luminance2: rgb(132, 32, 116);
+      --palette-hue8-luminance4: rgb(148, 60, 136);
+      --palette-hue8-luminance6: rgb(168, 88, 156);
+      --palette-hue8-luminance8: rgb(180, 112, 176);
+      --palette-hue8-luminance10: rgb(196, 132, 192);
+      --palette-hue8-luminance12: rgb(208, 156, 208);
+      --palette-hue8-luminance14: rgb(224, 176, 224);
+      --palette-hue9-luminance0: rgb(0, 60, 112);
+      --palette-hue9-luminance2: rgb(28, 88, 136);
+      --palette-hue9-luminance4: rgb(56, 116, 160);
+      --palette-hue9-luminance6: rgb(80, 140, 180);
+      --palette-hue9-luminance8: rgb(104, 164, 200);
+      --palette-hue9-luminance10: rgb(124, 184, 220);
+      --palette-hue9-luminance12: rgb(144, 204, 236);
+      --palette-hue9-luminance14: rgb(164, 224, 252);
+      --palette-hue10-luminance0: rgb(88, 0, 112);
+      --palette-hue10-luminance2: rgb(108, 32, 136);
+      --palette-hue10-luminance4: rgb(128, 60, 160);
+      --palette-hue10-luminance6: rgb(148, 88, 180);
+      --palette-hue10-luminance8: rgb(164, 112, 200);
+      --palette-hue10-luminance10: rgb(180, 132, 220);
+      --palette-hue10-luminance12: rgb(196, 156, 236);
+      --palette-hue10-luminance14: rgb(212, 176, 252);
+      --palette-hue11-luminance0: rgb(0, 32, 112);
+      --palette-hue11-luminance2: rgb(28, 60, 136);
+      --palette-hue11-luminance4: rgb(56, 88, 160);
+      --palette-hue11-luminance6: rgb(80, 116, 180);
+      --palette-hue11-luminance8: rgb(104, 136, 200);
+      --palette-hue11-luminance10: rgb(124, 160, 220);
+      --palette-hue11-luminance12: rgb(144, 180, 236);
+      --palette-hue11-luminance14: rgb(164, 200, 252);
+      --palette-hue12-luminance0: rgb(60, 0, 128);
+      --palette-hue12-luminance2: rgb(84, 32, 148);
+      --palette-hue12-luminance4: rgb(108, 60, 168);
+      --palette-hue12-luminance6: rgb(128, 88, 188);
+      --palette-hue12-luminance8: rgb(148, 112, 204);
+      --palette-hue12-luminance10: rgb(168, 132, 220);
+      --palette-hue12-luminance12: rgb(184, 156, 236);
+      --palette-hue12-luminance14: rgb(200, 176, 252);
+      --palette-hue13-luminance0: rgb(0, 0, 136);
+      --palette-hue13-luminance2: rgb(32, 32, 156);
+      --palette-hue13-luminance4: rgb(60, 60, 176);
+      --palette-hue13-luminance6: rgb(88, 88, 192);
+      --palette-hue13-luminance8: rgb(112, 112, 208);
+      --palette-hue13-luminance10: rgb(132, 132, 224);
+      --palette-hue13-luminance12: rgb(156, 156, 236);
+      --palette-hue13-luminance14: rgb(176, 176, 252);
+    }
 
     #orig {
       display: none;
@@ -12,7 +121,7 @@
       animation-duration: 0.8s;
       animation-fill-mode: forwards;
       animation-timing-function: ease-in-out;
-      fill: #000;
+      fill: var(--palette-hue1-luminance4);
     }
 
     #main circle {
@@ -76,30 +185,22 @@
     }
 
     text {
-      font-family: sans-serif;
-      font-size: 4px;
+      fill: var(--palette-hue2-luminance8);
+      font-family: 'Press Start 2P', cursive;
+      font-size: 0.15rem;
     }
 
-    /* red */
-    .p0 circle { fill: #E53935; }
-    /* blue */
-    .p1 circle { fill: #1E88E5; }
-    /* teal */
-    .p2 circle { fill: #00897B; }
-    /* amber */
-    .p3 circle { fill: #FFB300; }
-    /* brown*/
-    .p4 circle { fill: #6D4C41; }
-    /* grey-blue */
-    .p5 circle { fill: #546E7A; }
-    /* purple */
-    .p6 circle { fill: #7B1FA2; }
-    /* black */
-    .p7 circle { fill: #000; }
-    /* pink */
-    .p8 circle { fill: #E68DD0; }
+    .p0 circle { fill: var(--palette-hue3-luminance8); }
+    .p1 circle { fill: var(--palette-hue4-luminance8); }
+    .p2 circle { fill: var(--palette-hue5-luminance8); }
+    .p3 circle { fill: var(--palette-hue6-luminance8); }
+    .p4 circle { fill: var(--palette-hue7-luminance8); }
+    .p5 circle { fill: var(--palette-hue8-luminance8); }
+    .p6 circle { fill: var(--palette-hue9-luminance8); }
+    .p7 circle { fill: var(--palette-hue10-luminance8); }
+    .p8 circle { fill: var(--palette-hue11-luminance8); }
 
-    .menu .hex:hover circle { fill: #f66; }
+    .menu .hex:hover circle { fill: var(--palette-hue2-luminance8); }
 
     @keyframes bob {
       0%   { opacity: 1;   }
@@ -117,16 +218,17 @@
       opacity: 0.4;
     }
 
-    line, text {
-      fill: #fff;
+    .hexagon {
+      fill: var(--palette-hue1-luminance14);
+      stroke: var(--palette-hue1-luminance4);
+      stroke-width: 3;
     }
-
   </style>
 
   <g id="main">
     <g id="board">
       <g id="orig" class="hex zero init" transform-origin="0 0">
-        <path fill="#fff" stroke-width="3" stroke="#000" d="M0 50l25 43.3l50 0L100 50L75 6.7l-50 0z"/>
+        <path class="hexagon" d="M0 50l25 43.3l50 0L100 50L75 6.7l-50 0z"/>
         <circle r="7" class="one three five seven nine" cx="50" cy="50"/>
         <circle r="7" class="two three four five six seven eight nine" cx="33.33" cy="33.33"/>
         <circle r="7" class="two three four five six seven eight nine" cx="66.66" cy="66.66"/>
