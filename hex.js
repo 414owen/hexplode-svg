@@ -92,21 +92,14 @@ const numMenu = (values, text, callback) => new Promise(res => {
 const isOnGrid = (n, ptarr) => Math.max(...ptarr.map(Math.abs)) <= n;
 const isPointOnGrid = (n, point) => isOnGrid(n, point.get());
 const sum = arr => arr.reduce((a, b) => a + b);
-const isHexPoint = point => sum(point.get()) === 0;
 
 const surround = [
-  [0, 1, 1],
   [0, 1, -1],
   [0, -1, 1],
-  [0, -1, -1],
-  [1, 1, 0],
   [1, -1, 0],
-  [1, 0, 1],
   [1, 0, -1],
   [-1, 1, 0],
-  [-1, -1, 0],
   [-1, 0, 1],
-  [-1, 0, -1],
 ];
 
 class Point {
@@ -167,7 +160,6 @@ const newCell = (n, point, onClick) => {
     point,
     node: append(board, node)[1],
     neighbours: point.surrounding()
-      .filter(isHexPoint)
       .filter(isPointOnGrid.bind(null, n))
   };
 }
