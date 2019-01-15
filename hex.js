@@ -114,18 +114,14 @@ class Point {
     this.pt = [x, y, z];
   }
 
-  get() {
-    return this.pt;
-  }
-
   add(pt) {
     const [x, y, z] = pt.get();
     const [i, j, k] = this.pt;
     return new Point(x + i, y + j, z + k);
   }
 
-  surrounding() {
-    return surround.map(a => new Point(...a).add(this));
+  get() {
+    return this.pt;
   }
 
   equals(pt) {
@@ -134,25 +130,14 @@ class Point {
     return x === i && y === j && z === k;
   }
 
-  pathFrom(pt) {
-    const par = this.get();
-    const path = [];
-    while (!this.equals(pt)) {
-      let step;
-      const p = pt.get();
-      const [a, b, c] = par.map((a, i) => Math.abs(a - p[i]));
-      if (a <= b && a <= c) {
-        step = new Point(0, signum(par[1] - p[1]), signum(par[2] - p[2]));
-      } else if (b <= a && b <= c) {
-        step = new Point(signum(par[0] - p[0]), 0, signum(par[2] - p[2]));
-      } else {
-        step = new Point(signum(par[0] - p[0]), signum(par[1] - p[1]), 0);
-      }
-      path.push(step);
-      pt = pt.add(step);
-    }
-    return path;
+  static parse(str) {
+    return new Point(...JSON.parse(str));
   }
+
+  surrounding() {
+    return surround.map(a => new Point(...a).add(this));
+  }
+
 }
 
 const dx = [width / 2, 0];
@@ -199,6 +184,7 @@ const pointsIn = (n, callback) => {
   }
 };
 
+const getIn = (root, path) => path.reduce((acc, seg) => acc[seg], root);
 const updateIn = (root, path, updater) => {
   let node = root;
   path.forEach((seg, ind) => {
@@ -210,8 +196,7 @@ const updateIn = (root, path, updater) => {
     }
   });
 };
-
-const getIn = (root, path) => path.reduce((acc, seg) => acc[seg], root);
+const setIn = (root, path, el) => updateIn(root, path, constant(el));
 
 class Game {
   constructor(players, size) {
@@ -225,26 +210,23 @@ class Game {
     this.clickLock = false;
 
     const grid = this.grid = {};
-    this.points = 0;
+
+    const clickHandler = data => this.handleCellClick(data);
+
+    // create cells
     pointsIn(this.size, point => {
-      this.points++;
-      updateIn(grid, point.get(), constant(newCell(this.size, point, data => {
-        this.handleCellClick(data)
-      })));
+      setIn(grid, point.get(), newCell(this.size, point, clickHandler));
     });
+
+    // connect cells
     pointsIn(this.size, point => {
       const cell = getIn(grid, point.get());
       cell.neighbours = cell.neighbours.map(point => getIn(grid, point.get()));
     });
-    this.origin = getIn(grid, [0, 0, 0]);
-  }
-
-  get(x, y, z) {
-    return this.grid[x][y][z];
   }
 
   getPoint(point) {
-    return this.get(...point.get());
+    return getIn(this.grid, point.get());
   }
 
   getNextPlayer() {
@@ -259,77 +241,87 @@ class Game {
 
   incCell(cell) {
     cell.pieces++;
-    return this.styleCell(cell);
+    this.styleCell(cell);
+    return cell;
   }
 
   resolveCell(cell) {
     return new Promise(res => {
       const frontier = [];
-      if (cell.player !== this.playerInd && cell.player !== null) {
-        this.ownedCells[cell.player]--;
-      }
-      if (cell.pieces === 0 || cell.player !== this.playerInd) {
+
+      // they've taken over another player's cell
+      if (cell.pieces > 0
+        && cell.player !== null
+        && cell.player !== this.playerInd) this.ownedCells[cell.player]--;
+
+      // they've claimed an other player's or empty cell
+      if (cell.pieces === 0 || cell.player !== this.playerInd)
         this.ownedCells[this.playerInd]++;
-      }
+
+      // cell's gonna blow
       if (cell.pieces >= cell.neighbours.length) {
         this.ownedCells[this.playerInd]--;
         cell.neighbours.forEach(cell => {
           frontier.push(cell);
+          this.incCell(cell);
         });
-        cell.pieces = 0;
-        cell.player = null;
-      } else {
-        cell.player = this.playerInd;
+        cell.pieces %= cell.neighbours.length;
+        this.styleCell(cell);
       }
+
+      // style this cell and frontier
+      cell.player = this.playerInd;
+
+      // game over
       const winner = this.getWinner();
-      if (winner !== null) {
+      if (winner) {
         middleText(`Player ${winner + 1} Wins`);
         main.classList.add('game-over');
         main.classList.add(`p${winner}`);
         return;
-      } else {
-        this.styleCell(cell);
-        frontier.forEach(cell => {
-          this.incCell(cell);
-        });
-        if (frontier.length === 0) {
-          res();
-        } else {
-          window.setTimeout(() => {
-            return frontier.reduce((acc, cell) => {
-              return acc.then(() => this.resolveCell(cell));
-            }, Promise.resolve()).then(res);
-          }, 300);
-        }
       }
+
+      // base case - nothing to do
+      if (frontier.length === 0) {
+        res();
+        return;
+      }
+
+      // one-by-one frontier resolution
+      window.setTimeout(() => {
+        return frontier.reduce((acc, cell) => {
+          return acc.then(() => this.resolveCell(cell));
+        }, Promise.resolve()).then(res);
+      }, 300);
     });
   }
 
   getWinner() {
-    if (this.turn <= 1) return null;
+    if (this.turn <= 1) return;
     const zeros = this.ownedCells.filter(el => el === 0);
-    if (zeros.length !== this.ownedCells.length - 1) return null;
+    if (zeros.length !== this.ownedCells.length - 1) return;
     const nonZeros = this.ownedCells.filter(el => el !== 0);
     return this.ownedCells.indexOf(nonZeros[0]);
   }
 
   handleCellClick(data) {
-    const pointStr = data.target.dataset.point;
-    if (pointStr) {
-      const cell = this.get(...JSON.parse(pointStr));
-      if (cell.player === this.playerInd || cell.player === null) {
-        if (this.clickLock) return;
-        this.clickLock = true;
-        this.incCell(cell);
-        this.resolveCell(cell).then(() => {
-          this.clickLock = false;
-          this.turn++;
-          this.playerInd = this.getNextPlayer();
-        });
-      }
-    } else {
-      this.handleCellClick({ target: data.target.parentNode });
+
+    if (this.clickLock) return;
+
+    let node = data.target;
+    while (!node.dataset.point) {
+      node = node.parentNode;
     }
+
+    const cell = this.getPoint(Point.parse(node.dataset.point));
+    if (!(cell.player === this.playerInd || cell.pieces === 0)) return;
+
+    this.clickLock = true;
+    this.resolveCell(this.incCell(cell)).then(() => {
+      this.clickLock = false;
+      this.turn++;
+      this.playerInd = this.getNextPlayer();
+    });
   }
 }
 
@@ -340,7 +332,7 @@ const runGame = (players, size) => {
     'transform-origin': 'center',
     transform: `scale(${1 / (1 + 2 * size)})`,
   });
-  const grid = new Game(players, size);
+  new Game(players, size);
 };
 
 const startGame = () => {
@@ -348,7 +340,6 @@ const startGame = () => {
     .then(p => numMenu([3, 4, 5, 6, 7, 8, 9], 'Select board size')
       .then(n => [p, n]))
   .then(applier(runGame));
-
 };
 
 startGame();
