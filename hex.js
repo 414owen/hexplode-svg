@@ -270,7 +270,7 @@ class Game {
 
       // game over
       const winner = this.getWinner();
-      if (winner) {
+      if (winner === this.playerInd) {
         middleText(`Player ${winner + 1} Wins`);
         main.classList.add('game-over');
         main.classList.add(`p${winner}`);
