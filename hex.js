@@ -204,6 +204,7 @@ class Game {
     this.ownedCells = Array(players).fill(0);
     this.winner = false;
     this.clickLock = false;
+    this.turns = [];
 
     const grid = this.grid = {};
 
@@ -250,9 +251,12 @@ class Game {
         && cell.player !== null
         && cell.player !== this.playerInd) this.ownedCells[cell.player]--;
 
-      // they've claimed an other player's or empty cell
+      // they've claimed another player's or empty cell
       if (cell.pieces === 0 || cell.player !== this.playerInd)
         this.ownedCells[this.playerInd]++;
+
+      // take ownership
+      cell.player = this.playerInd;
 
       // cell's gonna blow
       if (cell.pieces >= cell.neighbours.length) {
@@ -262,25 +266,22 @@ class Game {
           this.incCell(cell);
         });
         cell.pieces %= cell.neighbours.length;
+        if (cell.pieces === 0) cell.player = null;
         this.styleCell(cell);
       }
 
-      // style this cell and frontier
-      cell.player = this.playerInd;
-
       // game over
       const winner = this.getWinner();
-      if (winner) {
+      if (winner === this.playerInd) {
         middleText(`Player ${winner + 1} Wins`);
         main.classList.add('game-over');
         main.classList.add(`p${winner}`);
-        return;
+        return res();
       }
 
       // base case - nothing to do
       if (frontier.length === 0) {
-        res();
-        return;
+        return res();
       }
 
       // one-by-one frontier resolution
@@ -313,6 +314,7 @@ class Game {
     if (!(cell.player === this.playerInd || cell.pieces === 0)) return;
 
     this.clickLock = true;
+    this.turns.push(cell.point);
     this.resolveCell(this.incCell(cell)).then(() => {
       this.clickLock = false;
       this.turn++;
