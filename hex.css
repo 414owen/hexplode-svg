@@ -120,11 +120,14 @@ circle {
   animation-fill-mode: forwards;
   animation-timing-function: ease-in-out;
   fill: var(--palette-hue1-luminance4);
+  shape-rendering: 'crispEdges';
+  stroke: var(--palette-hue1-luminance4);
+  stroke-dasharray: 6 2;
+  stroke-width: 1;
 }
 
 #main circle {
-  r: 0;
-  opacity: 1;
+  opacity: 0.85;
   animation-name: bob-out;
 }
 
@@ -182,17 +185,17 @@ circle {
   cursor: pointer;
 }
 
-.p0 circle { fill: var(--palette-hue3-luminance8); }
-.p1 circle { fill: var(--palette-hue4-luminance8); }
-.p2 circle { fill: var(--palette-hue5-luminance8); }
-.p3 circle { fill: var(--palette-hue6-luminance8); }
-.p4 circle { fill: var(--palette-hue7-luminance8); }
-.p5 circle { fill: var(--palette-hue8-luminance8); }
-.p6 circle { fill: var(--palette-hue9-luminance8); }
-.p7 circle { fill: var(--palette-hue10-luminance8); }
-.p8 circle { fill: var(--palette-hue11-luminance8); }
+.p0 circle { fill: var(--palette-hue3-luminance8); stroke: var(--palette-hue3-luminance8); }
+.p1 circle { fill: var(--palette-hue4-luminance8); stroke: var(--palette-hue4-luminance8); }
+.p2 circle { fill: var(--palette-hue5-luminance8); stroke: var(--palette-hue5-luminance8); }
+.p3 circle { fill: var(--palette-hue6-luminance8); stroke: var(--palette-hue6-luminance8); }
+.p4 circle { fill: var(--palette-hue7-luminance8); stroke: var(--palette-hue7-luminance8); }
+.p5 circle { fill: var(--palette-hue8-luminance8); stroke: var(--palette-hue8-luminance8); }
+.p6 circle { fill: var(--palette-hue9-luminance8); stroke: var(--palette-hue9-luminance8); }
+.p7 circle { fill: var(--palette-hue10-luminance8); stroke: var(--palette-hue10-luminance8); }
+.p8 circle { fill: var(--palette-hue11-luminance8); stroke: var(--palette-hue11-luminance8); }
 
-.menu .hex:hover circle { fill: var(--palette-hue2-luminance8); }
+.menu .hex:hover circle { fill: var(--palette-hue2-luminance8); stroke: var(--palette-hue2-luminance8); }
 
 @keyframes bob {
   0%   { opacity: 1;   }
