@@ -276,7 +276,7 @@ class Game {
         middleText(`Player ${winner + 1} Wins`);
         main.classList.add('game-over');
         main.classList.add(`p${winner}`);
-        return res();
+        return;
       }
 
       // base case - nothing to do
