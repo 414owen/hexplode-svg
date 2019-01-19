@@ -1,6 +1,10 @@
 
 @import url('https://fonts.googleapis.com/css?family=Press+Start+2P');
 
+@font-face {
+  font-family: "Dots";
+  src: url(./dots.font.ttf);
+}
 /* https://en.wikipedia.org/wiki/List_of_video_game_console_palettes#PAL */
 
 :root {
@@ -114,7 +118,7 @@
   display: none;
 }
 
-circle {
+text.value {
   opacity: 0;
   animation-duration: 0.8s;
   animation-fill-mode: forwards;
@@ -122,8 +126,7 @@ circle {
   fill: var(--palette-hue1-luminance4);
 }
 
-#main circle {
-  r: 0;
+#main text.value {
   opacity: 1;
   animation-name: bob-out;
 }
@@ -137,20 +140,26 @@ circle {
   animation-timing-function: ease-in-out;
 }
 
-.init circle {
+.init text.value {
   animation-duration: 0s;
 }
 
-#main .one   circle.one,
-#main .two   circle.two,
-#main .three circle.three,
-#main .four  circle.four,
-#main .five  circle.five,
-#main .six   circle.six,
-#main .seven circle.seven,
-#main .eight circle.eight,
-#main .nine  circle.nine {
+#main .one   text.value.one,
+#main .two   text.value.two,
+#main .three text.value.three,
+#main .four  text.value.four,
+#main .five  text.value.five,
+#main .six   text.value.six,
+#main .seven text.value.seven,
+#main .eight text.value.eight,
+#main .nine  text.value.nine {
   animation-name: bob-in;
+}
+text.value.one {
+  content: "1" !important;
+}
+text.value.two {
+  content: "2" !important;
 }
 
 @keyframes bob-in {
@@ -182,17 +191,17 @@ circle {
   cursor: pointer;
 }
 
-.p0 circle { fill: var(--palette-hue3-luminance8); }
-.p1 circle { fill: var(--palette-hue4-luminance8); }
-.p2 circle { fill: var(--palette-hue5-luminance8); }
-.p3 circle { fill: var(--palette-hue6-luminance8); }
-.p4 circle { fill: var(--palette-hue7-luminance8); }
-.p5 circle { fill: var(--palette-hue8-luminance8); }
-.p6 circle { fill: var(--palette-hue9-luminance8); }
-.p7 circle { fill: var(--palette-hue10-luminance8); }
-.p8 circle { fill: var(--palette-hue11-luminance8); }
+.p0 text.value { fill: var(--palette-hue3-luminance8); }
+.p1 text.value { fill: var(--palette-hue4-luminance8); }
+.p2 text.value { fill: var(--palette-hue5-luminance8); }
+.p3 text.value { fill: var(--palette-hue6-luminance8); }
+.p4 text.value { fill: var(--palette-hue7-luminance8); }
+.p5 text.value { fill: var(--palette-hue8-luminance8); }
+.p6 text.value { fill: var(--palette-hue9-luminance8); }
+.p7 text.value { fill: var(--palette-hue10-luminance8); }
+.p8 text.value { fill: var(--palette-hue11-luminance8); }
 
-.menu .hex:hover circle { fill: var(--palette-hue2-luminance8); }
+.menu .hex:hover text.value { fill: var(--palette-hue2-luminance8); }
 
 @keyframes bob {
   0%   { opacity: 1;   }
@@ -214,6 +223,11 @@ circle {
   fill: var(--palette-hue1-luminance14);
   stroke: var(--palette-hue1-luminance4);
   stroke-width: 3;
+}
+
+text.value {
+  font-family: 'Dots';
+  font-size: 7rem;
 }
 
 svg {

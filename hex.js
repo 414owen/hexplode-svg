@@ -152,14 +152,15 @@ const numMenu = (values, text, callback) => new Promise(res => {
   const newWidth = width * n;
   const newHeight = height * n;
   values.forEach((value, ind) => {
-    append(board, cloneOrig({
+    const node =  cloneOrig({
       transform: `scale(${1 / values.length}) translate(${width * ind} ${newHeight / 2 - height / 2})`,
-      'class': `hex ${classes[value]}`,
       style: `animation-delay: -100s`
     }, () => {
       res(value)
       main.classList.remove('menu');
-    }));
+    });
+    setNodeValue(node, value);
+    append(board,node);
   });
   bottomText(text);
 });
@@ -178,20 +179,25 @@ const pointsIn = (n, callback) => {
 
 const newCell = (n, point, onClick) => {
   const [x, y, z] = point.get();
-  const node = cloneOrig({
+  const hexagon = cloneOrig({
     transform: `translate(${translate(point)})`,
     style: `animation-delay: ${(Math.random() + n + Math.min(x, y, z)) / 10}s`,
     'data-point': JSON.stringify(point.get()),
   }, onClick);
+  hexagon.querySelector('text.value').innerHTML = '';
   return {
     id: point.get().toString(),
     player: null,
     pieces: 0,
     point,
-    node: append(board, node)[1],
+    node: append(board, hexagon)[1],
     neighbours: point.surrounding()
       .filter(isPointOnGrid.bind(null, n))
   };
+}
+
+const setNodeValue = (node, value) => {
+  node.querySelector('text.value').innerHTML = value;
 }
 
 class Game {
@@ -230,6 +236,7 @@ class Game {
   }
 
   styleCell(cell) {
+    setNodeValue(cell.node, cell.pieces);
     return attrs(cell.node, {
       'class': `hex p${this.playerInd} ${classes[cell.pieces]}`
     });
