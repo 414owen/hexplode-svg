@@ -40,6 +40,11 @@ const withClick = (el, callback) => {
   return el;
 };
 
+qa('rect').forEach(el => {
+  const [x, y, w] = getAttrs(el, ['x', 'y', 'width']).map(a => parseInt(a));
+  attrs(el, { "transform-origin": `${x + w / 2} ${y + w / 2}` });
+});
+
 const cloneOrig = (att = {}, onClick = pass) =>
   attrs(withClick(orig.cloneNode(true), onClick), {...att, id: ''});
 
