@@ -1,8 +1,8 @@
 console.log('hexplode');
 
 // DOM search
-const q = query => document.querySelector(query);
-const qa = query => Array.from(document.querySelectorAll(query));
+const q = (query, el = document) => el.querySelector(query);
+const qa = (query, el = document) => Array.from(el.querySelectorAll(query));
 
 // constants
 const classes = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'];
@@ -21,19 +21,20 @@ const rads = n => Math.PI * n / 180;
 const vedge = (width / 2) * Math.cos(rads(30));
 
 // DOM creation
-const crel = el => document.createElementNS('http://www.w3.org/2000/svg', el);
+const attrs = (node, attrs) =>
+  Object.entries(attrs).reduce((node, [key, val]) => {
+    node.setAttributeNS(null, key, val);
+    return node;
+  }, node);
+
+const crel = (el, atts = {}) =>
+  attrs(document.createElementNS('http://www.w3.org/2000/svg', el), atts);
 const crText = str => document.createTextNode(str);
 
 const emptyEl = node => {
   Array.from(node.childNodes).forEach(el => { el.remove(); });
   return node;
 };
-
-const attrs = (node, attrs) =>
-  Object.entries(attrs).reduce((node, [key, val]) => {
-    node.setAttributeNS(null, key, val);
-    return node;
-  }, node);
 
 const withClick = (el, callback) => {
   el.onclick = callback;
@@ -48,22 +49,20 @@ const append = (par, child) => {
   return [par, child];
 };
 
-const text = (x, y, str, {bl = 'text-after-edge'} = {}) => append(
-  attrs(
-    crel('text'), {
-    'text-anchor': 'middle',
-    x,
-    y,
-    'dominant-baseline': bl,
+const text = (str, className = 'bottom') => append(
+  crel('text', {
+    'class': className,
   }),
   crText(str)
 )[0];
 
-const bottomText = str =>
-  append(main, text(width / 2, height, str))[1];
+const textAt = (str, className) =>
+  append(main, text(str, className))[1];
 
-const middleText = str =>
-  append(main, text(width / 2, height / 2, str, {bl: 'middle'}))[1];
+const editText = (node, str) => {
+  node.childNodes[0].nodeValue = str;
+  return node;
+};
 
 // functional helpers
 const pass = () => {};
@@ -145,7 +144,7 @@ const translate = point => {
     [x + dx * n, y + dy * n], [ox, oy]);
 };
 
-const numMenu = (values, text, callback) => new Promise(res => {
+const numMenu = (values, str, callback) => new Promise(res => {
   main.classList.add('menu');
   append(emptyEl(main), emptyEl(board));
   const n = values.length;
@@ -161,7 +160,7 @@ const numMenu = (values, text, callback) => new Promise(res => {
       main.classList.remove('menu');
     }));
   });
-  bottomText(text);
+  textAt(str);
 });
 
 const pointsIn = (n, callback) => {
@@ -204,6 +203,11 @@ class Game {
     this.ownedCells = Array(players).fill(0);
     this.winner = false;
     this.clickLock = false;
+    this.text = textAt('');
+    this.updateTurnIndicator();
+    append(main, attrs(q('path', cloneOrig()), {
+      id: 'indicator',
+    }))[1];
 
     const grid = this.grid = {};
 
@@ -219,6 +223,18 @@ class Game {
       const cell = getIn(grid, point.get());
       cell.neighbours = cell.neighbours.map(point => getIn(grid, point.get()));
     });
+  }
+
+  replaceText(str, position = 'bottom left') {
+    editText(
+      attrs(this.text, { 'class': `${position} ${this.playerInd}` }),
+      str
+    );
+  }
+
+  updateTurnIndicator() {
+    this.replaceText(`Player ${this.playerInd + 1}`);
+    attrs(main, { 'class': `p${this.playerInd}` });
   }
 
   getPoint(point) {
@@ -271,7 +287,7 @@ class Game {
       // game over
       const winner = this.getWinner();
       if (winner) {
-        middleText(`Player ${winner + 1} Wins`);
+        this.replaceText(`Player ${winner + 1} wins`, 'center');
         main.classList.add('game-over');
         main.classList.add(`p${winner}`);
         return;
@@ -279,8 +295,7 @@ class Game {
 
       // base case - nothing to do
       if (frontier.length === 0) {
-        res();
-        return;
+        return res();
       }
 
       // one-by-one frontier resolution
@@ -317,6 +332,7 @@ class Game {
       this.clickLock = false;
       this.turn++;
       this.playerInd = this.getNextPlayer();
+      this.updateTurnIndicator();
     });
   }
 }

@@ -16,7 +16,6 @@
     }
 
     #main circle {
-      r: 0;
       opacity: 1;
       animation-name: bob-out;
     }
@@ -81,23 +80,23 @@
     }
 
     /* red */
-    .p0 circle { fill: #E53935; }
+    .p0 > #indicator, .p0 > circle { fill: #E53935; }
     /* blue */
-    .p1 circle { fill: #1E88E5; }
+    .p1 > #indicator, .p1 > circle { fill: #1E88E5; }
     /* teal */
-    .p2 circle { fill: #00897B; }
+    .p2 > #indicator, .p2 > circle { fill: #00897B; }
     /* amber */
-    .p3 circle { fill: #FFB300; }
+    .p3 > #indicator, .p3 > circle { fill: #FFB300; }
     /* brown*/
-    .p4 circle { fill: #6D4C41; }
+    .p4 > #indicator, .p4 > circle { fill: #6D4C41; }
     /* grey-blue */
-    .p5 circle { fill: #546E7A; }
+    .p5 > #indicator, .p5 > circle { fill: #546E7A; }
     /* purple */
-    .p6 circle { fill: #7B1FA2; }
+    .p6 > #indicator, .p6 > circle { fill: #7B1FA2; }
     /* black */
-    .p7 circle { fill: #000; }
+    .p7 > #indicator, .p7 > circle { fill: #000; }
     /* pink */
-    .p8 circle { fill: #E68DD0; }
+    .p8 > #indicator, .p8 > circle { fill: #E68DD0; }
 
     .menu .hex:hover circle { fill: #f66; }
 
@@ -119,6 +118,37 @@
 
     line, text {
       fill: #fff;
+    }
+
+    text {
+      stroke-width: 0.1px;
+      text-anchor: middle;
+    }
+
+    text.center {
+      dominant-baseline: middle;
+      transform: translate(50px, 50px);
+    }
+
+    text.bottom {
+      transform: translate(50px, 98px);
+    }
+
+    text.left {
+      dominant-baseline: text-after-edge;
+      text-anchor: start;
+      transform: translate(8px, 98px);
+    }
+
+    #indicator {
+      animation: none;
+      stroke: #fff;
+      stroke-width: 8;
+      transform: translate(2px, 93px) scale(0.05);
+    }
+
+    .game-over #indicator {
+      display: none;
     }
 
   </style>
