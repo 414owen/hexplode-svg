@@ -288,7 +288,7 @@ class Game {
 
       // game over
       const winner = this.getWinner();
-      if (winner) {
+      if (winner !== undefined) {
         this.replaceText(`Player ${winner + 1} wins`, 'center');
         main.classList.add('game-over');
         main.classList.add(`p${winner}`);
