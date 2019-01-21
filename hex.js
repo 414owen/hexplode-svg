@@ -286,15 +286,6 @@ class Game {
         this.styleCell(cell);
       }
 
-      // game over
-      const winner = this.getWinner();
-      if (winner !== undefined) {
-        this.replaceText(`Player ${winner + 1} wins`, 'center');
-        main.classList.add('game-over');
-        main.classList.add(`p${winner}`);
-        return;
-      }
-
       // base case - nothing to do
       if (frontier.length === 0) {
         return res();
@@ -332,10 +323,17 @@ class Game {
     this.clickLock = true;
     this.turns.push(cell.point);
     this.resolveCell(this.incCell(cell)).then(() => {
-      this.clickLock = false;
-      this.turn++;
-      this.playerInd = this.getNextPlayer();
-      this.updateTurnIndicator();
+      const winner = this.getWinner();
+      if (winner !== undefined) {
+        this.replaceText(`Player ${winner + 1} wins`, 'center');
+        main.classList.add('game-over');
+        main.classList.add(`p${winner}`);
+      } else {
+        this.clickLock = false;
+        this.turn++;
+        this.playerInd = this.getNextPlayer();
+        this.updateTurnIndicator();
+      }
     });
   }
 }
