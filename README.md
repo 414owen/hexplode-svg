@@ -9,6 +9,10 @@ Hexplode is a turn-based strategy game with a simple ruleset.
 
 You can [try it online](https://owen.cafe/hex.svg).
 
+<aside class="warning">
+Warning, the current version only works properly in Chrome.
+</aside>
+
 ## Rules
 
 * Each turn a player adds one piece to a cell. This cell can be empty or have
