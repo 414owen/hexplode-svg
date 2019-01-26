@@ -276,15 +276,19 @@ class Game {
 
       // cell's gonna blow
       if (cell.pieces >= cell.neighbours.length) {
-        this.ownedCells[this.playerInd]--;
         cell.neighbours.forEach(cell => {
           frontier.push(cell);
           this.incCell(cell);
         });
         cell.pieces %= cell.neighbours.length;
-        if (cell.pieces === 0) cell.player = null;
+        if (cell.pieces === 0) {
+          cell.player = null;
+          this.ownedCells[this.playerInd]--;
+        }
         this.styleCell(cell);
       }
+
+      console.log(...this.ownedCells);
 
       // base case - nothing to do
       if (frontier.length === 0) {
