@@ -81,6 +81,7 @@ const updateIn = (root, path, updater) => {
   });
 };
 const setIn = (root, path, el) => updateIn(root, path, constant(el));
+const hasCellPredicate = stat => stat.ownedCells !== 0;
 
 attrs(q('.hex path'), {
   d: `M0 ${height / 2}l${width / 4} ${vedge}l${width / 2} 0L${width} ${height / 2}l-${width / 4} -${vedge}l-${width / 2} 0z`,
@@ -200,7 +201,10 @@ class Game {
     this.size = size;
     this.turn = 0;
     this.playerInd = 0;
-    this.ownedCells = Array(players).fill(0);
+    this.stats = Array(players).fill(0).map(_ => ({
+      ownedCells: 0,
+      tokens: 0,
+    }));
     this.winner = false;
     this.clickLock = false;
     this.text = textAt('');
@@ -265,11 +269,11 @@ class Game {
       // they've taken over another player's cell
       if (cell.pieces > 0
         && cell.player !== null
-        && cell.player !== this.playerInd) this.ownedCells[cell.player]--;
+        && cell.player !== this.playerInd) this.stats[cell.player].ownedCells--;
 
       // they've claimed another player's or empty cell
       if (cell.pieces === 0 || cell.player !== this.playerInd)
-        this.ownedCells[this.playerInd]++;
+        this.stats[this.playerInd].ownedCells++;
 
       // take ownership
       cell.player = this.playerInd;
@@ -283,12 +287,10 @@ class Game {
         cell.pieces %= cell.neighbours.length;
         if (cell.pieces === 0) {
           cell.player = null;
-          this.ownedCells[this.playerInd]--;
+          this.stats[this.playerInd].ownedCells--;
         }
         this.styleCell(cell);
       }
-
-      console.log(...this.ownedCells);
 
       // base case - nothing to do
       if (frontier.length === 0) {
@@ -305,11 +307,8 @@ class Game {
   }
 
   getWinner() {
-    if (this.turn <= 1) return;
-    const zeros = this.ownedCells.filter(el => el === 0);
-    if (zeros.length !== this.ownedCells.length - 1) return;
-    const nonZeros = this.ownedCells.filter(el => el !== 0);
-    return this.ownedCells.indexOf(nonZeros[0]);
+    if (this.turn < 2 || this.stats.filter(hasCellPredicate).length !== 1) return;
+    return this.stats.findIndex(hasCellPredicate);
   }
 
   handleCellClick(data) {
