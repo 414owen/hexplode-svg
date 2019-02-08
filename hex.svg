@@ -47,22 +47,22 @@
     }
 
     @keyframes bob-in {
-      0%   { r: 0;     }
-      20%  { r: 8;     }
-      40%  { r: 6.5;   }
-      60%  { r: 7.25;  }
-      80%  { r: 6.875; }
-      100% { r: 7;     }
+      0%   { transform: scale(0);     }
+      20%  { transform: scale(1.2);     }
+      40%  { transform: scale(0.9);   }
+      60%  { transform: scale(1.05);  }
+      80%  { transform: scale(0.975); }
+      100% { transform: scale(1);     }
     }
 
     @keyframes bob-out{
-      0%   { r: 7; }
-      100% { r: 0; }
+      0%   { transform: scale(1); }
+      100% { transform: scale(0); }
     }
 
     @keyframes focus {
-      0%   { r: 7; }
-      100% { r: 8; }
+      0%   { transform: scale(7); }
+      100% { transform: scale(8); }
     }
 
     @keyframes fade-in {
@@ -124,28 +124,27 @@
     text {
       stroke-width: 0.1px;
       text-anchor: middle;
+      dominant-baseline: middle;
     }
 
     text.center {
-      dominant-baseline: middle;
       transform: translate(50px, 50px);
     }
 
     text.bottom {
-      transform: translate(50px, 98px);
+      transform: translate(50px, 96px);
     }
 
     text.left {
-      dominant-baseline: text-after-edge;
       text-anchor: start;
-      transform: translate(8px, 98px);
+      transform: translate(8px, 96px);
     }
 
     #indicator {
       animation: none;
       stroke: #fff;
       stroke-width: 8;
-      transform: translate(2px, 93px) scale(0.05);
+      transform: translate(4.5px, 95.5px) scale(0.05);
     }
 
     .game-over #indicator {
@@ -156,17 +155,17 @@
 
   <g id="main">
     <g id="board">
-      <g id="orig" class="hex zero init" transform-origin="0 0">
-        <path fill="#fff" stroke-width="3" stroke="#000" d="M0 50l25 43.3l50 0L100 50L75 6.7l-50 0z"/>
-        <circle r="7" class="one three five seven nine" cx="50" cy="50"/>
-        <circle r="7" class="two three four five six seven eight nine" cx="33.33" cy="33.33"/>
-        <circle r="7" class="two three four five six seven eight nine" cx="66.66" cy="66.66"/>
-        <circle r="7" class="four five six seven eight nine" cx="33.33" cy="66.66"/>
-        <circle r="7" class="four five six seven eight nine" cx="66.66" cy="33.33"/>
-        <circle r="7" class="six seven eight nine" cx="33.33" cy="50"/>
-        <circle r="7" class="six seven eight nine" cx="66.66" cy="50"/>
-        <circle r="7" class="eight nine" cx="50" cy="33.33"/>
-        <circle r="7" class="eight nine" cx="50" cy="66.66"/>
+      <g id="orig" class="hex zero init">
+        <path fill="#fff" stroke-width="3" stroke="#000" d="M-50 0l25 43.3l50 0l25 -43.34l-25 -43.3l-50 0z"/>
+        <circle r="7" class="one three five seven nine" cx="0" cy="0"/>
+        <circle r="7" class="two three four five six seven eight nine" cx="-16" cy="-16"/>
+        <circle r="7" class="two three four five six seven eight nine" cx="16" cy="16"/>
+        <circle r="7" class="four five six seven eight nine" cx="-16" cy="16"/>
+        <circle r="7" class="four five six seven eight nine" cx="16" cy="-16"/>
+        <circle r="7" class="six seven eight nine" cx="-16" cy="0"/>
+        <circle r="7" class="six seven eight nine" cx="16" cy="0"/>
+        <circle r="7" class="eight nine" cx="0" cy="-16"/>
+        <circle r="7" class="eight nine" cx="0" cy="16"/>
       </g>
     </g>
   </g>

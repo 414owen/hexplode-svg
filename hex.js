@@ -84,7 +84,12 @@ const setIn = (root, path, el) => updateIn(root, path, constant(el));
 const hasCellPredicate = stat => stat.ownedCells !== 0;
 
 attrs(q('.hex path'), {
-  d: `M0 ${height / 2}l${width / 4} ${vedge}l${width / 2} 0L${width} ${height / 2}l-${width / 4} -${vedge}l-${width / 2} 0z`,
+  d: `M${-width / 2} 0l${width / 4} ${vedge}l${width / 2} 0l${width / 4} ${-vedge}l-${width / 4} -${vedge}l-${width / 2} 0z`,
+});
+
+qa('circle').forEach(el => {
+  const [cx, cy] = getAttrs(el, ['cx', 'cy']);
+  el.style.transformOrigin = `${cx}px ${cy}px`;
 });
 
 // hex points
@@ -149,11 +154,9 @@ const numMenu = (values, str, callback) => new Promise(res => {
   main.classList.add('menu');
   append(emptyEl(main), emptyEl(board));
   const n = values.length;
-  const newWidth = width * n;
-  const newHeight = height * n;
   values.forEach((value, ind) => {
     append(board, cloneOrig({
-      transform: `scale(${1 / values.length}) translate(${width * ind} ${newHeight / 2 - height / 2})`,
+      transform: `translate(${width * ind / n + width / n / 2} ${height / 2}) scale(${1 / values.length})`,
       'class': `hex ${classes[value]}`,
       style: `animation-delay: -100s`
     }, () => {
@@ -345,8 +348,7 @@ const runGame = (players, size) => {
   size--;
   append(emptyEl(main), emptyEl(board));
   attrs(board, {
-    'transform-origin': 'center',
-    transform: `scale(${1 / (1 + 2 * size)})`,
+    transform: `translate(${width / 2} ${height / 2}) scale(${1 / (1 + 2 * size)})`,
   });
   new Game(players, size);
 };
