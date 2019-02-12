@@ -245,8 +245,12 @@ class Game {
     attrs(main, { 'class': `p${this.playerInd}` });
   }
 
+  get(ptarr) {
+    return getIn(this.grid, ptarr);
+  }
+
   getPoint(point) {
-    return getIn(this.grid, point.get());
+    return this.get(point.get());
   }
 
   getNextPlayer() {
@@ -265,21 +269,23 @@ class Game {
     return cell;
   }
 
-  resolveCell(cell) {
+  resolveCell(cell, delay = 300) {
     return new Promise(res => {
       const frontier = [];
 
-      // they've taken over another player's cell
-      if (cell.pieces > 0
-        && cell.player !== null
-        && cell.player !== this.playerInd) this.stats[cell.player].ownedCells--;
-
       // they've claimed another player's or empty cell
-      if (cell.pieces === 0 || cell.player !== this.playerInd)
+      if (cell.pieces > 0 && cell.player !== this.playerInd) {
+
+        // they've taken over another player's cell
+        if (cell.player !== null) {
+          this.stats[cell.player].ownedCells--;
+        }
+
         this.stats[this.playerInd].ownedCells++;
 
-      // take ownership
-      cell.player = this.playerInd;
+        // take ownership
+        cell.player = this.playerInd;
+      }
 
       // cell's gonna blow
       if (cell.pieces >= cell.neighbours.length) {
@@ -302,10 +308,10 @@ class Game {
 
       // one-by-one frontier resolution
       window.setTimeout(() => {
-        return frontier.reduce((acc, cell) => {
-          return acc.then(() => this.resolveCell(cell));
-        }, Promise.resolve()).then(res);
-      }, 300);
+        frontier.reduce((acc, cell) =>
+          acc.then(() => this.resolveCell(cell, delay)),
+          Promise.resolve()).then(res);
+      }, delay);
     });
   }
 
@@ -342,6 +348,26 @@ class Game {
       }
     });
   }
+
+  debug(points, delay = 0) {
+    return points.reduce((acc, point, ind) =>
+      acc.then(() => {
+        if (
+          qa('.hex.p0:not(.zero)').length !== this.stats[0].ownedCells
+          || qa('.hex.p1:not(.zero)').length !== this.stats[1].ownedCells
+        ) {
+          console.log(ind);
+          throw new Error();
+        }
+        const cell = getIn(this.grid, point);
+        return this.resolveCell(this.incCell(cell), delay).then(() => {
+          this.playerInd = this.getNextPlayer();
+          this.updateTurnIndicator();
+        });
+      }),
+      Promise.resolve(1)
+    ).catch(pass);
+  }
 }
 
 const runGame = (players, size) => {
@@ -350,7 +376,7 @@ const runGame = (players, size) => {
   attrs(board, {
     transform: `translate(${width / 2} ${height / 2}) scale(${1 / (1 + 2 * size)})`,
   });
-  new Game(players, size);
+  window.game = new Game(players, size);
 };
 
 const startGame = () => {
