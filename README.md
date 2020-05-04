@@ -7,7 +7,7 @@
 
 Hexplode is a turn-based strategy game with a simple ruleset.
 
-You can [try it online](https://owen.cafe/hex.svg).
+You can [try it online](https://hexplo.de/).
 
 <aside class="warning">
 Warning, the current version only works properly in Chrome.
